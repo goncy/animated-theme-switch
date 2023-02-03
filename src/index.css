@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+::selection {
+  color: theme('colors.light');
+  background: theme('colors.primary.500');
+}
