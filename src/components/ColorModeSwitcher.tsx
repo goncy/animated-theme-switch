@@ -1,55 +1,51 @@
-import {useRef, useState} from "react";
+import {useState} from "react";
 import {createPortal} from "react-dom";
 
 type OverlayProps = {
-  status: "hidden" | "showcase" | "visible";
+  isPreviewing: boolean;
+  isToggled: boolean;
 };
 
-const overlayStyles: Record<OverlayProps["status"], string> = {
-  hidden: "w-0",
-  showcase: "w-full",
-  visible: "w-[200%]",
-};
-
-const Overlay = ({status}: OverlayProps) => {
+const Overlay = ({isToggled, isPreviewing}: OverlayProps) => {
   const overlay = document.querySelector("#overlay");
 
   if (!overlay) return null;
 
   return createPortal(
     <div
-      className={`fixed backdrop-invert z-50 h-full skew-x-[30deg] -left-1/2 top-0 pointer-events-none transition-all duration-500 ${overlayStyles[status]}`}
+      className={`fixed backdrop-invert z-50 h-full skew-x-[30deg] -left-1/2 top-0 pointer-events-none transition-all duration-500 ${
+        isPreviewing ? "w-full" : isToggled ? "w-[200%]" : "w-0"
+      }`}
     />,
     overlay as HTMLElement,
   );
 };
 
 const ColorModeSwitcher: React.FC = () => {
-  const [status, setStatus] = useState<OverlayProps["status"]>("hidden");
-  const isToggled = useRef(false);
-  const isInteractive = useRef(true);
+  const [{isToggled, isPreviewing, isInteractive}, setState] = useState({
+    isToggled: false,
+    isPreviewing: false,
+    isInteractive: true,
+  });
 
   return (
     <>
       <a
         role="button"
         onClick={() => {
-          setStatus(isToggled.current ? "hidden" : "visible");
-
-          isInteractive.current = false;
-          isToggled.current = !isToggled.current;
+          setState(({isToggled}) => ({
+            isPreviewing: false,
+            isToggled: !isToggled,
+            isInteractive: false,
+          }));
         }}
         onMouseEnter={() => {
-          if (!isInteractive.current) return;
+          if (!isInteractive) return;
 
-          setStatus("showcase");
-
-          isInteractive.current = true;
+          setState((state) => ({...state, isPreviewing: true, isInteractive: true}));
         }}
         onMouseLeave={() => {
-          setStatus(isToggled.current ? "visible" : "hidden");
-
-          isInteractive.current = true;
+          setState((state) => ({...state, isPreviewing: false, isInteractive: true}));
         }}
       >
         {isToggled ? (
@@ -81,7 +77,7 @@ const ColorModeSwitcher: React.FC = () => {
           </svg>
         )}
       </a>
-      <Overlay status={status} />
+      <Overlay isPreviewing={isPreviewing} isToggled={isToggled} />
     </>
   );
 };
