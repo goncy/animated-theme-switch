@@ -28,10 +28,26 @@ const ColorModeSwitcher: React.FC = () => {
     isInteractive: true,
   });
 
+  const previewStart = () => {
+    if (!isInteractive) return;
+
+    setState((state) => ({...state, isPreviewing: true, isInteractive: true}));
+  };
+
+  const previewEnd = () => {
+    setState((state) => ({...state, isPreviewing: false, isInteractive: true}));
+  };
+
   return (
     <>
-      <a
-        role="button"
+      <button
+        aria-checked={isToggled}
+        aria-label="dark theme"
+        className="p-2"
+        role="switch"
+        type="button"
+        value={isToggled ? "on" : "off"}
+        onBlur={previewEnd}
         onClick={() => {
           setState(({isToggled}) => ({
             isPreviewing: false,
@@ -39,14 +55,9 @@ const ColorModeSwitcher: React.FC = () => {
             isInteractive: false,
           }));
         }}
-        onMouseEnter={() => {
-          if (!isInteractive) return;
-
-          setState((state) => ({...state, isPreviewing: true, isInteractive: true}));
-        }}
-        onMouseLeave={() => {
-          setState((state) => ({...state, isPreviewing: false, isInteractive: true}));
-        }}
+        onFocus={previewStart}
+        onMouseEnter={previewStart}
+        onMouseLeave={previewEnd}
       >
         {isToggled ? (
           <svg height="16px" viewBox="0 0 24 24" width="16px">
@@ -76,7 +87,7 @@ const ColorModeSwitcher: React.FC = () => {
             </g>
           </svg>
         )}
-      </a>
+      </button>
       <Overlay isPreviewing={isPreviewing} isToggled={isToggled} />
     </>
   );
